@@ -99,11 +99,6 @@ func TestTopic_FindItem(t *testing.T) {
 		return nil
 	})
 
-	testTopic.PrintLocalItemStore(func(data []byte) string {
-		buf := bytes.NewBuffer(data)
-		return buf.String()
-	})
-
 	if len(foundData) == 0 {
 		t.Fatalf("couldn't found test items")
 	}

@@ -19,3 +19,10 @@ func (mrf *MetadataRequestFailed) Error() string {
 	}
 	return fmt.Sprintf("can't request metadata for topic (%s)", mrf.NestedError.Error())
 }
+
+type ItemNotFound struct {
+}
+
+func (inf *ItemNotFound) Error() string {
+	return "item not found"
+}

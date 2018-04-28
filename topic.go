@@ -100,7 +100,7 @@ func (t *Topic) Close() error {
 	return nil
 }
 
-func (t *Topic) getNextId() uint64 {
+func (t *Topic) GetNextId() uint64 {
 	//todo: impl with store
 	for {
 		i := rand.Uint64()
@@ -111,15 +111,19 @@ func (t *Topic) getNextId() uint64 {
 }
 
 func (t *Topic) CreateItem(data []byte) (uint64, error) {
-	newKey := t.getNextId()
+	newKey := t.GetNextId()
 	return newKey, t.UpdateItem(newKey, data)
+}
+
+func (t *Topic) CreateItemWithKey(key uint64, data []byte) (uint64, error) {
+	return key, t.UpdateItem(key, data)
 }
 
 func (t *Topic) ReadItem(key uint64) ([]byte, error) {
 	if data, ok := t.Store[key]; ok {
 		return data, nil
 	}
-	return nil, nil
+	return nil, &ItemNotFound{}
 }
 
 func (t *Topic) UpdateItem(key uint64, data []byte) error {
@@ -138,9 +142,7 @@ func (t *Topic) UpdateItem(key uint64, data []byte) error {
 		if err != nil {
 			return err
 		}
-
-		t.updateStore(key, data)
-		return nil
+		return t.updateStore(key, data)
 	}
 	// asynchron update
 	t.K.AsyncProducer.Input() <- &msg
@@ -164,10 +166,19 @@ func (t *Topic) FindItem(validate func([]byte) interface{}) []interface{} {
 
 // Debug function only
 func (t *Topic) PrintLocalItemStore(cast func([]byte) string) {
+	if t.Store == nil {
+		panic("store is nil")
+		return
+	}
 	fmt.Println("Start printing local store items:")
 	for key, data := range t.Store {
 		dataString := cast(data)
-		fmt.Printf("%d: %s \n", key, dataString)
+		if len(dataString) > 0 {
+			fmt.Printf("%d: %s \n", key, dataString)
+		} else {
+			fmt.Printf("%d: empty \n", key)
+		}
+
 	}
 	fmt.Println("End printing")
 }

@@ -147,7 +147,7 @@ func (k *Kagodb) GetTopic(name string) (*Topic, error) {
 }
 
 func (k *Kagodb) topic(name string, create bool) (*Topic, error) {
-	metadataRequest := sarama.MetadataRequest{Topics: []string{name}, AllowAutoTopicCreation: create}
+	metadataRequest := sarama.MetadataRequest{Topics: []string{name}}
 	response, err := k.Broker.GetMetadata(&metadataRequest)
 	if err != nil {
 		return nil, &MetadataRequestFailed{NestedError: err}
